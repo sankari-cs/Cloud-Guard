@@ -5,3 +5,7 @@ uploads/
 reports/
 __pycache__/
 *.db
+.coverage
+.coverage
+*.pycode
+*.pyV
