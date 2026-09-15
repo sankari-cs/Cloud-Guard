@@ -1,0 +1,62 @@
+﻿{% extends "base.html" %}
+{% block title %}{{ scan.scan_name }} · Scan #{{ scan.id }}{% endblock %}
+{% block page_title %}Scan #{{ scan.id }} · {{ scan.scan_name }}{% endblock %}
+{% block content %}
+<p class="muted">
+  <a href="{{ url_for('scans.index') }}">← Back to scan history</a>
+</p>
+<section class="panel">
+  <div class="detail-grid">
+    <div><span class="label">Status</span>{{ scan.status }}</div>
+    <div><span class="label">Source</span>{{ scan.source_type }}</div>
+    <div><span class="label">Path</span><code>{{ scan.source_path or '—' }}</code></div>
+    <div><span class="label">Started</span>{{ scan.started_at.strftime('%Y-%m-%d %H:%M') if scan.started_at else '—' }}</div>
+    <div><span class="label">Completed</span>{{ scan.completed_at.strftime('%Y-%m-%d %H:%M') if scan.completed_at else '—' }}</div>
+    <div><span class="label">Files scanned</span>{{ scan.files_scanned or 0 }}</div>
+    <div><span class="label">Findings</span>{{ scan.findings_count or 0 }}</div>
+    <div><span class="label">Risk score</span>{{ '%.1f'|format(scan.risk_score or 0) }}</div>
+  </div>
+  {% if scan.error_message %}
+    <p class="flash flash-error" style="margin-top:12px;">{{ scan.error_message }}</p>
+  {% endif %}
+</section>
+<section class="panel">
+  <h2>Findings by Severity</h2>
+  <div class="cards" style="grid-template-columns: repeat(5, minmax(0,1fr)); margin-bottom: 0;">
+    {% for sev in severity_order %}
+      <div class="card">
+        <div class="label">{{ sev }}</div>
+        <div class="value">{{ by_severity[sev] }}</div>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+<section class="panel">
+  <h2>{{ findings|length }} finding{{ '' if findings|length == 1 else 's' }}</h2>
+  {% if findings %}
+  <table class="findings-table">
+    <thead>
+      <tr>
+        <th>Severity</th><th>Type</th><th>File</th><th>Line</th>
+        <th class="num">Risk</th><th>Status</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for f in findings %}
+      <tr>
+        <td><span class="sev sev-{{ f.severity }}">{{ f.severity }}</span></td>
+        <td>{{ f.secret_type }}</td>
+        <td><code>{{ f.file_path }}</code></td>
+        <td class="num">{{ f.line_number }}</td>
+        <td class="num">{{ '%.1f'|format(f.risk_score or 0) }}</td>
+        <td>{{ f.triage_status }}</td>
+        <td><a href="{{ url_for('findings.detail', finding_id=f.id) }}">View</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="muted">No findings in this scan.</p>
+  {% endif %}
+</section>
+{% endblock %}

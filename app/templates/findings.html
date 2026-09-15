@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Findings · CloudGuard{% endblock %}
+{% block page_title %}Findings{% endblock %}
+
+{% block content %}
+
+<section class="panel">
+  <form method="get" action="{{ url_for('findings.index') }}" class="filter-bar">
+    <div class="filter">
+      <label for="severity">Severity</label>
+      <select id="severity" name="severity">
+        <option value="">All</option>
+        {% for sev in severity_order %}
+          <option value="{{ sev }}" {% if filters.severity == sev %}selected{% endif %}>{{ sev }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="filter">
+      <label for="type">Type</label>
+      <select id="type" name="type">
+        <option value="">All</option>
+        {% for t in types %}
+          <option value="{{ t }}" {% if filters.type == t %}selected{% endif %}>{{ t }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="filter">
+      <label for="scan">Scan</label>
+      <select id="scan" name="scan">
+        <option value="">All</option>
+        {% for s in scans %}
+          <option value="{{ s.id }}" {% if filters.scan == s.id %}selected{% endif %}>#{{ s.id }} · {{ s.scan_name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="filter filter-grow">
+      <label for="q">Search file path or type</label>
+      <input id="q" name="q" type="text" value="{{ filters.q }}" placeholder="e.g. .env">
+    </div>
+
+    <div class="filter">
+      <label for="sort">Sort</label>
+      <select id="sort" name="sort">
+        <option value="risk" {% if filters.sort == 'risk' %}selected{% endif %}>Risk</option>
+        <option value="severity" {% if filters.sort == 'severity' %}selected{% endif %}>Severity</option>
+        <option value="file" {% if filters.sort == 'file' %}selected{% endif %}>File path</option>
+        <option value="created" {% if filters.sort == 'created' %}selected{% endif %}>Detected</option>
+      </select>
+    </div>
+
+    <div class="filter">
+      <label for="order">Order</label>
+      <select id="order" name="order">
+        <option value="desc" {% if filters.order == 'desc' %}selected{% endif %}>Desc</option>
+        <option value="asc" {% if filters.order == 'asc' %}selected{% endif %}>Asc</option>
+      </select>
+    </div>
+
+    <div class="filter filter-actions">
+      <button type="submit" class="btn btn-primary">Apply</button>
+      <a href="{{ url_for('findings.index') }}" class="btn btn-ghost">Reset</a>
+    </div>
+  </form>
+</section>
+
+<section class="panel">
+  <h2>{{ total }} finding{{ '' if total == 1 else 's' }}</h2>
+
+  {% if findings %}
+  <table class="findings-table">
+    <thead>
+      <tr>
+        <th>Severity</th>
+        <th>Type</th>
+        <th>File</th>
+        <th>Line</th>
+        <th class="num">Risk</th>
+        <th>Validation</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for f in findings %}
+      <tr>
+        <td><span class="sev sev-{{ f.severity }}">{{ f.severity }}</span></td>
+        <td>{{ f.secret_type }}</td>
+        <td><code>{{ f.file_path }}</code></td>
+        <td class="num">{{ f.line_number }}</td>
+        <td class="num">{{ '%.1f'|format(f.risk_score or 0) }}</td>
+        <td>{{ f.validation_status }}</td>
+        <td>{{ f.triage_status }}</td>
+        <td><a href="{{ url_for('findings.detail', finding_id=f.id) }}">View</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if total_pages > 1 %}
+  <div class="pagination">
+    {% if page > 1 %}
+      <a href="{{ url_for('findings.index', page=page-1, severity=filters.severity, type=filters.type, scan=filters.scan, q=filters.q, sort=filters.sort, order=filters.order) }}">‹ Prev</a>
+    {% endif %}
+    <span>Page {{ page }} of {{ total_pages }}</span>
+    {% if page < total_pages %}
+      <a href="{{ url_for('findings.index', page=page+1, severity=filters.severity, type=filters.type, scan=filters.scan, q=filters.q, sort=filters.sort, order=filters.order) }}">Next ›</a>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% else %}
+    <p class="muted">No findings match the current filters.</p>
+  {% endif %}
+</section>
+
+{% endblock %}

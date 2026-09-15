@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · CloudGuard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<section class="cards">
+  <div class="card">
+    <div class="label">Total Scans</div>
+    <div class="value">{{ stats.total_scans }}</div>
+  </div>
+  <div class="card">
+    <div class="label">Total Findings</div>
+    <div class="value">{{ stats.total_findings }}</div>
+  </div>
+  <div class="card card-critical">
+    <div class="label">Critical</div>
+    <div class="value">{{ stats.by_severity.critical }}</div>
+  </div>
+  <div class="card card-high">
+    <div class="label">High</div>
+    <div class="value">{{ stats.by_severity.high }}</div>
+  </div>
+  <div class="card">
+    <div class="label">Average Risk</div>
+    <div class="value">{{ stats.average_risk }}</div>
+  </div>
+</section>
+
+<div class="grid-2">
+  <section class="panel">
+    <h2>Findings by Severity</h2>
+    {% for sev in severity_order %}
+    <div class="bar-row">
+      <div class="bar-label">
+        <span class="sev sev-{{ sev }}">{{ sev }}</span>
+      </div>
+      <div class="bar-track">
+           <div class="bar-fill sev-bg-{{ sev }}"
+             style="width: 0%;"
+             data-width="{{ (stats.by_severity[sev] / severity_max * 100) if severity_max else 0 }}"></div>
+      </div>
+      <div class="bar-value">{{ stats.by_severity[sev] }}</div>
+    </div>
+    {% endfor %}
+  </section>
+
+  <section class="panel">
+    <h2>Findings by Type</h2>
+    {% if stats.by_type %}
+      {% for row in stats.by_type %}
+      <div class="bar-row">
+        <div class="bar-label">{{ row.name }}</div>
+        <div class="bar-track">
+          <div class="bar-fill bar-neutral"
+            style="width: 0%;"
+            data-width="{{ (row.count / type_max * 100) if type_max else 0 }}"></div>
+        </div>
+        <div class="bar-value">{{ row.count }}</div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <p class="muted">No findings yet.</p>
+    {% endif %}
+  </section>
+</div>
+
+<section class="panel">
+  <h2>Recent Findings</h2>
+  {% if recent %}
+  <table>
+    <thead>
+      <tr>
+        <th>Severity</th>
+        <th>Type</th>
+        <th>File</th>
+        <th>Risk</th>
+        <th>Detected</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for f in recent %}
+      <tr>
+        <td><span class="sev sev-{{ f.severity }}">{{ f.severity }}</span></td>
+        <td>{{ f.secret_type }}</td>
+        <td><code>{{ f.file_path }}</code></td>
+        <td class="num">{{ '%.1f'|format(f.risk_score or 0) }}</td>
+        <td class="muted">{{ f.created_at.strftime('%Y-%m-%d %H:%M') if f.created_at else '' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">No findings yet. Run a scan to populate the dashboard.</p>
+  {% endif %}
+</section>
+
+<script>
+  document.querySelectorAll('.bar-fill[data-width]').forEach(function (bar) {
+    bar.style.width = bar.dataset.width + '%';
+  });
+</script>
+
+{% endblock %}

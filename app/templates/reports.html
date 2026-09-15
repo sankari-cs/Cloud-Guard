@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Reports · CloudGuard{% endblock %}
+{% block page_title %}Reports{% endblock %}
+
+{% block content %}
+
+<section class="panel">
+  <h2>Generate report</h2>
+  <form method="post" action="{{ url_for('reports.generate') }}" class="filter-bar">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="filter filter-grow">
+      <label for="scan_id">Scan</label>
+      <select id="scan_id" name="scan_id" required>
+        {% if not scans %}
+          <option value="">No scans available</option>
+        {% endif %}
+        {% for s in scans %}
+          <option value="{{ s.id }}">#{{ s.id }} · {{ s.scan_name }} · {{ s.status }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="filter">
+      <label for="format">Format</label>
+      <select id="format" name="format">
+        <option value="pdf">PDF</option>
+        <option value="html">HTML</option>
+        <option value="json">JSON</option>
+        <option value="csv">CSV</option>
+      </select>
+    </div>
+
+    <div class="filter filter-actions">
+      <button type="submit" class="btn btn-primary" {% if not scans %}disabled{% endif %}>Generate</button>
+    </div>
+  </form>
+</section>
+
+<section class="panel">
+  <h2>{{ reports|length }} report{{ '' if reports|length == 1 else 's' }}</h2>
+
+  {% if reports %}
+  <table>
+    <thead>
+      <tr>
+        <th>File</th>
+        <th>Format</th>
+        <th class="num">Size</th>
+        <th>Generated</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in reports %}
+      <tr>
+        <td><code>{{ r.name }}</code></td>
+        <td>{{ r.format }}</td>
+        <td class="num">{{ (r.size / 1024) | round(1) }} KB</td>
+        <td class="muted">{{ r.modified.strftime('%Y-%m-%d %H:%M') }}</td>
+        <td>
+          <a href="{{ url_for('reports.download', filename=r.name) }}">Download</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="muted">No reports generated yet.</p>
+  {% endif %}
+</section>
+
+{% endblock %}

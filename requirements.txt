@@ -1,0 +1,10 @@
+﻿Flask>=3.0,<4
+Flask-SQLAlchemy>=3.1,<4
+Flask-Login>=0.6,<0.7
+Flask-WTF>=1.2,<2
+Flask-Migrate>=4.0,<5
+SQLAlchemy>=2.0,<3
+Werkzeug>=3.0,<4
+python-dotenv>=1.0,<2
+gunicorn>=22,<23
+reportlab>=4.0,<5

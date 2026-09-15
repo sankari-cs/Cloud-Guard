@@ -1,0 +1,10 @@
+﻿{% extends "base.html" %}
+{% block title %}500 · CloudGuard{% endblock %}
+{% block page_title %}Server error{% endblock %}
+{% block content %}
+<section class="panel">
+  <h2>{{ title }}</h2>
+  <p class="muted">An unexpected error occurred. The issue has been logged.</p>
+  <a href="{{ url_for('dashboard.index') }}" class="btn btn-ghost">Back to dashboard</a>
+</section>
+{% endblock %}

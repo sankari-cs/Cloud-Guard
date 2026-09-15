@@ -1,0 +1,65 @@
+﻿{% extends "base.html" %}
+{% block title %}Settings · CloudGuard{% endblock %}
+{% block page_title %}Settings{% endblock %}
+{% block content %}
+<section class="panel">
+  <h2>Scan limits</h2>
+  <form method="post" action="{{ url_for('settings.index') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="settings-grid">
+      <div class="filter">
+        <label for="max_upload_mb">Max upload size (MB)</label>
+        <input id="max_upload_mb" name="max_upload_mb" type="number" min="1"
+               value="{{ settings.max_upload_mb }}">
+      </div>
+      <div class="filter">
+        <label for="max_files_per_scan">Max files per scan</label>
+        <input id="max_files_per_scan" name="max_files_per_scan" type="number" min="1"
+               value="{{ settings.max_files_per_scan }}">
+      </div>
+      <div class="filter">
+        <label for="max_findings_per_scan">Max findings per scan</label>
+        <input id="max_findings_per_scan" name="max_findings_per_scan" type="number" min="1"
+               value="{{ settings.max_findings_per_scan }}">
+      </div>
+      <div class="filter">
+        <label for="entropy_threshold">Entropy threshold</label>
+        <input id="entropy_threshold" name="entropy_threshold" type="text"
+               value="{{ settings.entropy_threshold }}">
+      </div>
+    </div>
+    <h2 style="margin-top:20px;">Severity thresholds</h2>
+    <div class="settings-grid">
+      <div class="filter">
+        <label for="severity_critical">Critical ≥</label>
+        <input id="severity_critical" name="severity_critical" type="number" min="0" max="100"
+               value="{{ settings.severity_critical }}">
+      </div>
+      <div class="filter">
+        <label for="severity_high">High ≥</label>
+        <input id="severity_high" name="severity_high" type="number" min="0" max="100"
+               value="{{ settings.severity_high }}">
+      </div>
+      <div class="filter">
+        <label for="severity_medium">Medium ≥</label>
+        <input id="severity_medium" name="severity_medium" type="number" min="0" max="100"
+               value="{{ settings.severity_medium }}">
+      </div>
+      <div class="filter">
+        <label for="severity_low">Low ≥</label>
+        <input id="severity_low" name="severity_low" type="number" min="0" max="100"
+               value="{{ settings.severity_low }}">
+      </div>
+    </div>
+    <h2 style="margin-top:20px;">Excluded directories</h2>
+    <div class="filter filter-grow">
+      <label for="excluded_dirs">Comma-separated</label>
+      <input id="excluded_dirs" name="excluded_dirs" type="text"
+             value="{{ settings.excluded_dirs }}">
+    </div>
+    <div style="margin-top:16px;">
+      <button type="submit" class="btn btn-primary">Save settings</button>
+    </div>
+  </form>
+</section>
+{% endblock %}

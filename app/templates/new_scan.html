@@ -1,0 +1,61 @@
+﻿{% extends "base.html" %}
+{% block title %}New Scan · CloudGuard{% endblock %}
+{% block page_title %}New Scan{% endblock %}
+{% block content %}
+<section class="panel">
+  <form method="post" action="{{ url_for('scans.new') }}" enctype="multipart/form-data" class="scan-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="filter filter-grow">
+      <label for="scan_name">Scan name</label>
+      <input id="scan_name" name="scan_name" type="text" required
+             placeholder="e.g. production-monorepo">
+    </div>
+    <div class="mode-tabs">
+      <label class="mode-tab">
+        <input type="radio" name="mode" value="directory" checked>
+        <span>Directory</span>
+      </label>
+      <label class="mode-tab">
+        <input type="radio" name="mode" value="zip">
+        <span>Upload ZIP</span>
+      </label>
+    </div>
+    <div class="mode-panel" data-mode="directory">
+      <div class="filter filter-grow">
+        <label for="directory">Directory path</label>
+        <input id="directory" name="directory" type="text"
+               placeholder="e.g. C:\dev\my-project">
+      </div>
+      <p class="muted">
+        A safe local path readable by the CloudGuard process.
+      </p>
+    </div>
+    <div class="mode-panel" data-mode="zip" style="display:none;">
+      <label class="file-drop-label" for="zip_file">
+        <span class="file-drop-title">Choose ZIP file</span>
+        <span class="file-drop-sub">Max 50 MB · .zip only</span>
+      </label>
+      <input id="zip_file" name="zip_file" type="file" accept=".zip,application/zip"
+             class="file-input-hidden">
+      <div id="zip_file_name" class="muted file-name-display">No file selected</div>
+      <p class="muted">
+        Archives are safely extracted: Zip Slip, absolute paths, and
+        oversized entries are blocked.
+      </p>
+    </div>
+    <div style="margin-top:16px;">
+      <button type="submit" class="btn btn-primary">Start scan</button>
+      <a href="{{ url_for('scans.index') }}" class="btn btn-ghost">Cancel</a>
+    </div>
+  </form>
+</section>
+<section class="panel">
+  <h2>Notes</h2>
+  <ul class="muted" style="margin:0; padding-left:20px;">
+    <li>Directory scans require the path to exist on the server.</li>
+    <li>ZIP extraction enforces file count, size, and compression ratio limits.</li>
+    <li>Findings are redacted at write time; no plaintext secrets are stored.</li>
+  </ul>
+</section>
+<script src="{{ url_for('static', filename='js/new_scan.js') }}"></script>
+{% endblock %}

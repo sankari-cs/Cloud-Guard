@@ -1,0 +1,32 @@
+﻿services:
+  cloudguard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cloudguard:latest
+    container_name: cloudguard
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: sqlite:////app/instance/cloudguard.db
+      UPLOAD_FOLDER: /app/uploads
+      REPORTS_FOLDER: /app/reports
+      SESSION_COOKIE_SECURE: "false"
+    ports:
+      - "8000:8000"
+    volumes:
+      - cloudguard_instance:/app/instance
+      - cloudguard_uploads:/app/uploads
+      - cloudguard_reports:/app/reports
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request,sys; sys.exit(0) if urllib.request.urlopen('http://127.0.0.1:8000/health',timeout=3).status==200 else sys.exit(1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+volumes:
+  cloudguard_instance:
+  cloudguard_uploads:
+  cloudguard_reports:

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}{{ finding.secret_type }} · Finding #{{ finding.id }}{% endblock %}
+{% block page_title %}Finding #{{ finding.id }}{% endblock %}
+
+{% block content %}
+
+<p class="muted">
+  <a href="{{ url_for('findings.index') }}">← Back to findings</a>
+  {% if scan %} · Scan #{{ scan.id }} · {{ scan.scan_name }}{% endif %}
+</p>
+
+<section class="panel">
+  <div class="detail-head">
+    <span class="sev sev-{{ finding.severity }}">{{ finding.severity }}</span>
+    <span class="detail-risk">Risk {{ '%.1f'|format(finding.risk_score or 0) }}</span>
+    <span class="detail-type">{{ finding.secret_type }}</span>
+  </div>
+
+  <div class="detail-grid">
+    <div><span class="label">File</span><code>{{ finding.file_path }}</code></div>
+    <div><span class="label">Line</span>{{ finding.line_number or '—' }}</div>
+    <div><span class="label">Confidence</span>{{ '%.2f'|format(finding.confidence or 0) }}</div>
+    <div><span class="label">Validation</span>{{ finding.validation_status }}</div>
+    <div><span class="label">Fingerprint</span><code>{{ finding.fingerprint[:16] }}…</code></div>
+    <div><span class="label">Triage</span>{{ finding.triage_status }}</div>
+    <div><span class="label">Detected</span>{{ finding.created_at.strftime('%Y-%m-%d %H:%M') if finding.created_at else '' }}</div>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Redacted value</h2>
+  <pre class="code-block">{{ finding.redacted_value }}</pre>
+</section>
+
+<section class="panel">
+  <h2>Context</h2>
+  <pre class="code-block">{{ finding.context_snippet or 'No context available.' }}</pre>
+</section>
+
+<section class="panel">
+  <h2>Why it was detected</h2>
+  <p>{{ finding.detection_reason or '—' }}</p>
+</section>
+
+<section class="panel">
+  <h2>Remediation</h2>
+  <pre class="code-block">{{ finding.remediation or 'No remediation available.' }}</pre>
+</section>
+
+<section class="panel">
+  <h2>Actions</h2>
+  <form method="post" action="{{ url_for('findings.triage', finding_id=finding.id) }}" class="triage-actions">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" name="status" value="open" class="btn btn-ghost">Mark open</button>
+    <button type="submit" name="status" value="false_positive" class="btn btn-ghost">Mark false positive</button>
+    <button type="submit" name="status" value="resolved" class="btn btn-primary">Mark resolved</button>
+    <button type="submit" name="status" value="ignored" class="btn btn-ghost">Ignore</button>
+  </form>
+</section>
+
+{% endblock %}

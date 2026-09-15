@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}CloudGuard{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/cloudguard.css') }}">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-dot"></span> CloudGuard
+      </div>
+      <nav>
+        <a href="{{ url_for('dashboard.index') }}">Dashboard</a>
+                <a href="{{ url_for('scans.new') }}">New Scan</a>
+
+        <a href="{{ url_for('scans.index') }}">Scan History</a>
+        <a href="{{ url_for('findings.index') }}">Findings</a>
+        <a href="{{ url_for('reports.index') }}">Reports</a>
+                <a href="{{ url_for('alerts.index') }}">Alerts</a>
+        <a href="{{ url_for('settings.index') }}">Settings</a>
+      </nav>
+      <div class="sidebar-footer">
+        {% if current_user.is_authenticated %}
+          <div class="user">
+            <div class="user-name">{{ current_user.username }}</div>
+            <div class="user-role">{{ current_user.role }}</div>
+          </div>
+          <form method="post" action="{{ url_for('auth.logout') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-ghost btn-sm">Sign out</button>
+          </form>
+        {% endif %}
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-title">{% block page_title %}{% endblock %}</div>
+      </header>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="flash-area">
+            {% for category, message in messages %}
+              <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <div class="content">
+        {% block content %}{% endblock %}
+      </div>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,47 @@
+﻿{% extends "base.html" %}
+{% block title %}Scan History · CloudGuard{% endblock %}
+{% block page_title %}Scan History{% endblock %}
+{% block content %}
+<section class="panel">
+  <h2>{{ scans|length }} scan{{ '' if scans|length == 1 else 's' }}</h2>
+  {% if scans %}
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th><th>Name</th><th>Source</th><th>Started</th>
+        <th class="num">Files</th><th class="num">Findings</th>
+        <th class="num">Crit</th><th class="num">High</th>
+        <th class="num">Risk</th><th>Status</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in scans %}
+      <tr>
+        <td class="num">#{{ s.id }}</td>
+        <td>{{ s.scan_name }}</td>
+        <td>{{ s.source_type }}</td>
+        <td class="muted">{{ s.started_at.strftime('%Y-%m-%d %H:%M') if s.started_at else '' }}</td>
+        <td class="num">{{ s.files_scanned or 0 }}</td>
+        <td class="num">{{ s.findings_count or 0 }}</td>
+        <td class="num">{{ s.critical_count or 0 }}</td>
+        <td class="num">{{ s.high_count or 0 }}</td>
+        <td class="num">{{ '%.1f'|format(s.risk_score or 0) }}</td>
+        <td>
+          {% if s.status == 'completed' %}
+            <span class="status status-ok">completed</span>
+          {% elif s.status == 'failed' %}
+            <span class="status status-fail">failed</span>
+          {% else %}
+            <span class="status">{{ s.status }}</span>
+          {% endif %}
+        </td>
+        <td><a href="{{ url_for('scans.detail', scan_id=s.id) }}">View</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="muted">No scans yet. Run one from the CLI or the New Scan page.</p>
+  {% endif %}
+</section>
+{% endblock %}
